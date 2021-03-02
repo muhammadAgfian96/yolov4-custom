@@ -101,8 +101,8 @@ class GenerateConfig:
                 path_full_img = jpath(path_dataset, 'valid', img)
                 f.write(path_full_img)
 
-        bckup_path = jpath(root, f'backup_{self.confing["arhc"]}')
-        infer_path = jpath(basename, f'inference_{self.confing["arhc"]}')
+        bckup_path = jpath(root, f'backup_{self.config["arch"]}_{self.config["subversion"]}')
+        infer_path = jpath(basename, f'inference_{self.config["arch"]}')
         if not os.path.exists(bckup_path):
             os.makedirs(bckup_path)
         
@@ -112,7 +112,7 @@ class GenerateConfig:
         print('here your configs path:')
         print(f'''
         └── {basename}
-           ├── {self.confing["arhc"]}_{basename}.cfg
+           ├── {self.config["arch"]}_{basename}_{self.config["subversion"]}.cfg
            ├── data_desc
            │    ├── train.txt 
            |    ├── valid.txt 
@@ -128,7 +128,7 @@ class GenerateConfig:
             print('[ERROR] Failed to generate configs')
             return
         basename = self._get_basename()
-        name_cfg = self.config['arch']+ '_' + basename +'.cfg'
+        name_cfg = f'{self.config["arch"]}_{basename}_{self.config["subversion"]}.cfg'
         cfg_file = jpath(basename, name_cfg)
         self.cfg_path = cfg_file
         if not os.path.exists(basename):
@@ -154,10 +154,31 @@ class GenerateConfig:
             " 
             !darknet detector train \ \n{self.obj_data_path} \ \n{self.cfg_path} \n{self.downloaded_path} -dont_show -map
             "''')
-
+    return self.obj_data_path, self.cfg_path, self.downloaded_path
     def get_basename(self):
         return self._get_basename()
 
+    def get_pretrained_models(self):
+        yolov4 = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights'
+        yolov4_csp = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-csp.weights'
+        yolov4_tiny = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.weights'
+        
+        if self.config['arch'] == 'yolov4':
+            link = yolov4
+            name_pretrained = 'yolov4.weights'
+        elif self.config['arch'] == 'yolov4-tiny':
+            link = yolov4_tiny
+            name_pretrained = 'yolov4-tiny.weights'
+        elif self.config['arch'] == 'yolov4-csp':
+            link = yolov4_csp
+            name_pretrained = 'yolov4-csp.weights'
+        else:
+            link = ''
+            name_pretrained = ''
+        
+        self.downloaded_path = name_pretrained
+        return link, name_pretrained
+        
     def show_chart_training(self):
         print('Cooming soon!')
         pass
