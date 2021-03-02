@@ -1,0 +1,4 @@
+YOUR_CUSTOM_DATA/train/photo_2021-02-19_08-29-06.jpg
+YOUR_CUSTOM_DATA/train/photo_2021-02-19_08-28-59.jpg
+YOUR_CUSTOM_DATA/train/photo_2021-02-20_12-47-41.jpg
+YOUR_CUSTOM_DATA/train/photo_2021-02-20_12-47-44.jpg

@@ -1,0 +1,5 @@
+classes = 2
+train   = yolov4-tiny_badak_03022021_142026/data_desc/train.txt
+valid   = yolov4-tiny_badak_03022021_142026/data_desc/valid.txt
+names   = yolov4-tiny_badak_03022021_142026/data_desc/obj.names
+backup  = yolov4-tiny_badak_03022021_142026/data_desc/backup/
