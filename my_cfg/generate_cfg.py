@@ -85,7 +85,7 @@ class GenerateConfig:
             f.write(f'train   = {root}/train.txt\n')
             f.write(f'valid   = {root}/valid.txt\n')
             f.write(f'names   = {root}/obj.names\n')
-            f.write(f'backup  = {root}/backup_{self.confing['arch']}/')
+            f.write(f'backup  = {root}/backup_{self.confing["arch"]}/')
 
         train_txt = f'{root}/train.txt'
         valid_txt = f'{root}/valid.txt'
@@ -101,8 +101,8 @@ class GenerateConfig:
                 path_full_img = jpath(path_dataset, 'valid', img)
                 f.write(path_full_img)
 
-        bckup_path = jpath(root, f'backup_{self.confing['arch']}')
-        infer_path = jpath(basename, f'inference_{self.confing['arch']}')
+        bckup_path = jpath(root, f'backup_{self.confing["arhc"]}')
+        infer_path = jpath(basename, f'inference_{self.confing["arhc"]}')
         if not os.path.exists(bckup_path):
             os.makedirs(bckup_path)
         
@@ -112,7 +112,7 @@ class GenerateConfig:
         print('here your configs path:')
         print(f'''
         └── {basename}
-           ├── {self.confing['arch']}_{basename}.cfg
+           ├── {self.confing["arhc"]}_{basename}.cfg
            ├── data_desc
            │    ├── train.txt 
            |    ├── valid.txt 
