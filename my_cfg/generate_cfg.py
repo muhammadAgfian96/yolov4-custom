@@ -11,34 +11,36 @@ class GenerateConfig:
         self.cfg_file_lines = 'Error'
 
     def _get_conf(self):
-        if self.config['type'] == 'yolov4':
+        if self.config['arch'] == 'yolov4':
             with open('my_cfg/yolov4.cfg', 'r+') as f:
-                self.cfg_file_lines = f.readlines()
+                self.cfg_file_lines = f.read()
         
-        elif self.config['type'] == 'yolov4-tiny':
+        elif self.config['arch'] == 'yolov4-tiny':
             with open('my_cfg/yolov4-tiny.cfg', 'r+') as f:
                 self.cfg_file_lines = f.read()
         
-        elif self.config['type'] == 'yolov4-tiny-3l':
+        elif self.config['arch'] == 'yolov4-tiny-3l':
             with open('my_cfg/yolov4-tiny-3l.cfg', 'r+') as f:
-                self.cfg_file_lines = f.readlines()
+                self.cfg_file_lines = f.read()
         
-        elif self.config['type'] == 'yolov4-csp':
+        elif self.config['arch'] == 'yolov4-csp':
             with open('my_cfg/yolov4-csp.cfg', 'r+') as f:
-                self.cfg_file_lines = f.readlines()
+                self.cfg_file_lines = f.read()
         else:
             self.cfg_file_lines = 'Error'
-            error_msg = '[ERROR] There is no yolo type like that. Check again!'
+            error_msg = '[ERROR] Ups! we didnt found arch like that. Check again!'
             print(error_msg)
 
     def _get_basename(self):
+        '''
+        cuman name-project+version
+        '''
         now = datetime.now() # current date and time
         time_now = now.strftime("%m%d%Y_%H%M%S")
         version = [time_now if str(self.config['version-config']) == 'auto' else str(self.config['version-config'])][0]
 
-        base_name = str(self.config['type'])
-        base_name += '_'
-        base_name += str(self.config['name-project']) 
+
+        base_name = str(self.config['name-project']) 
         base_name += '_'
         base_name += version
         return base_name
@@ -71,8 +73,8 @@ class GenerateConfig:
         self.config['classes'] = self.num_class
         self.config['filters_conv'] = (self.num_class+5) * 3
         self.config['max_batches'] = (self.num_class) * 2000
-        self.config['step_1'] = int(0.8 * self.config['max_batches'])
-        self.config['step_2'] = int(0.9 * self.config['max_batches'])
+        self.config['steps_1'] = int(0.8 * self.config['max_batches'])
+        self.config['steps_2'] = int(0.9 * self.config['max_batches'])
 
 
         root = f'{basename}/data_desc'
@@ -83,7 +85,7 @@ class GenerateConfig:
             f.write(f'train   = {root}/train.txt\n')
             f.write(f'valid   = {root}/valid.txt\n')
             f.write(f'names   = {root}/obj.names\n')
-            f.write(f'backup  = {root}/backup/')
+            f.write(f'backup  = {root}/backup_{self.confing['arch']}/')
 
         train_txt = f'{root}/train.txt'
         valid_txt = f'{root}/valid.txt'
@@ -99,19 +101,24 @@ class GenerateConfig:
                 path_full_img = jpath(path_dataset, 'valid', img)
                 f.write(path_full_img)
 
-        os.makedirs(jpath(root), 'backup')
-        os.makedirs(jpath(basename), 'inference')
+        bckup_path = jpath(root, f'backup_{self.confing['arch']}')
+        infer_path = jpath(basename, f'inference_{self.confing['arch']}')
+        if not os.path.exists(bckup_path):
+            os.makedirs(bckup_path)
+        
+        if not os.path.exists(infer_path):
+            os.makedirs(infer_path)
 
         print('here your configs path:')
         print(f'''
         └── {basename}
-           ├── {basename}.cfg
-           ├── {data_desc}
+           ├── {self.confing['arch']}_{basename}.cfg
+           ├── data_desc
            │    ├── train.txt 
            |    ├── valid.txt 
            |    ├── obj.names
-           |    └── backup/
-           └── inference/
+           |    └── {bckup_path}/
+           └── {infer_path}/
         ''')
         
     def generate_arch_config(self):
@@ -121,7 +128,7 @@ class GenerateConfig:
             print('[ERROR] Failed to generate configs')
             return
         basename = self._get_basename()
-        name_cfg = basename +'.cfg'
+        name_cfg = self.config['arch']+ '_' + basename +'.cfg'
         cfg_file = jpath(basename, name_cfg)
         self.cfg_path = cfg_file
         if not os.path.exists(basename):
@@ -150,6 +157,10 @@ class GenerateConfig:
 
     def get_basename(self):
         return self._get_basename()
+
+    def show_chart_training(self):
+        print('Cooming soon!')
+        pass
 
 if __name__ == '__main__':
     config = {}
