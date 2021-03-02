@@ -71,8 +71,8 @@ class GenerateConfig:
         self.config['classes'] = self.num_class
         self.config['filters_conv'] = (self.num_class+5) * 3
         self.config['max_batches'] = (self.num_class) * 2000
-        self.config['step_1'] = int(0.8 * (self.num_class) * 2000)
-        self.config['step_2'] = int(0.9 * (self.num_class) * 2000)
+        self.config['step_1'] = int(0.8 * self.config['max_batches'])
+        self.config['step_2'] = int(0.9 * self.config['max_batches'])
 
 
         root = f'{basename}/data_desc'
@@ -99,12 +99,22 @@ class GenerateConfig:
                 path_full_img = jpath(path_dataset, 'valid', img)
                 f.write(path_full_img)
 
-        print('[PATH INFO]', f'train   = {root}/train.txt' )
-        print('[PATH INFO]', f'valid   = {root}/valid.txt' )
-        print('[PATH INFO]', f'names   = {root}/obj.names' )
-        print('[PATH INFO]', f'backup  = {root}/backup/' )
+        os.makedirs(jpath(root), 'backup')
+        os.makedirs(jpath(basename), 'inference')
+
+        print('here your configs path:')
+        print(f'''
+        └── {basename}
+           ├── {basename}.cfg
+           ├── {data_desc}
+           │    ├── train.txt 
+           |    ├── valid.txt 
+           |    ├── obj.names
+           |    └── backup/
+           └── inference/
+        ''')
         
-    def generate_config(self):
+    def generate_arch_config(self):
         self._get_conf()
 
         if self.cfg_file_lines == 'Error':
@@ -131,9 +141,15 @@ class GenerateConfig:
 
     def generate_command(self, mode):
         self.downloaded_path = 'yolov4.conv.137'
-        print('COPY THIS to new cell, and Excecute!')
+        print('COPY THIS to new cell, and Excecute!\n\n')
         if mode=='train':
-            print(f'!darknet detector train {self.obj_data_path} {self.cfg_path} {self.downloaded_path} -dont_show -map')
+            print(f''' 
+            " 
+            !darknet detector train \ \n{self.obj_data_path} \ \n{self.cfg_path} \n{self.downloaded_path} -dont_show -map
+            "''')
+
+    def get_basename(self):
+        return self._get_basename()
 
 if __name__ == '__main__':
     config = {}
