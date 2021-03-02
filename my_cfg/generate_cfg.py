@@ -9,6 +9,8 @@ class GenerateConfig:
     def __init__(self, config):
         self.config = config
         self.cfg_file_lines = 'Error'
+        self.config['name-project'] = self.config['name-project'].upper()
+        self.config['version-config'] = self.config['version-config'].upper()
 
     def _get_conf(self):
         if self.config['arch'] == 'yolov4':
@@ -28,18 +30,18 @@ class GenerateConfig:
                 self.cfg_file_lines = f.read()
         else:
             self.cfg_file_lines = 'Error'
-            error_msg = '[ERROR] Ups! we didnt found arch like that. Check again!'
+            error_msg = '[ERROR] Ups! we didnt have arch like that. Check again!'
+            error_msg += '\nArchitecture:\n- yolov4\n- yolov4-tiny\n- yolov4-csp\n- yolov4-tiny-3l'
             print(error_msg)
 
-    def _get_basename(self):
+    def _get_parent_folder(self):
         '''
         cuman name-project+version
         '''
         now = datetime.now() # current date and time
         time_now = now.strftime("%m%d%Y_%H%M%S")
         version = [time_now if str(self.config['version-config']) == 'auto' else str(self.config['version-config'])][0]
-
-
+        
         base_name = str(self.config['name-project']) 
         base_name += '_'
         base_name += version
@@ -57,8 +59,6 @@ class GenerateConfig:
         print('[DONE] generate Makefile')
 
     def generate_path_setting(self, path_dataset):
-        basename = self._get_basename()
-
         def remove_none(x):
             if x == '\n':
                 return False
@@ -76,21 +76,35 @@ class GenerateConfig:
         self.config['steps_1'] = int(0.8 * self.config['max_batches'])
         self.config['steps_2'] = int(0.9 * self.config['max_batches'])
 
+        # config name
+        parent_folder = self._get_parent_folder()
+        root = f'{parent_folder}/data_desc'
+        self.full_model_name = f'{self.config["arch"]}_{self.config["subversion"]}'
+        self.full_name = f'{self.full_model_name}_{parent_folder}'
+        self.name_cfg = self.full_name + '.cfg'
+        self.obj_data_path = jpath(parent_folder, 'data_desc','obj.data')
+        self.backup_path = jpath(root, f'backup_{self.full_model_name}')
+        self.infer_path = jpath(parent_folder, f'inference_{self.full_model_name}')
 
-        root = f'{basename}/data_desc'
-        self.obj_data_path = jpath(basename, 'data_desc')
+
+        if not os.path.exists(self.backup_path):
+            os.makedirs(self.backup_path)
+        
+        if not os.path.exists(self.infer_path):
+            os.makedirs(self.infer_path)
+
+
         if not os.path.exists(root): os.makedirs(root)
         with open(f'{root}/obj.data', 'w') as f:
             f.write(f'classes = {self.num_class}\n')
             f.write(f'train   = {root}/train.txt\n')
             f.write(f'valid   = {root}/valid.txt\n')
             f.write(f'names   = {root}/obj.names\n')
-            f.write(f'backup  = {root}/backup_{self.confing["arch"]}/')
+            f.write(f'backup  = {root}/{self.backup_path}/')
 
         train_txt = f'{root}/train.txt'
         valid_txt = f'{root}/valid.txt'
 
-        
         with open(train_txt, 'w') as f:
             for img in [f for f in os.listdir(jpath(path_dataset, 'train')) if f.endswith('jpg')]:
                 path_full_img = jpath(path_dataset, 'train', img)
@@ -101,24 +115,17 @@ class GenerateConfig:
                 path_full_img = jpath(path_dataset, 'valid', img)
                 f.write(path_full_img)
 
-        bckup_path = jpath(root, f'backup_{self.config["arch"]}_{self.config["subversion"]}')
-        infer_path = jpath(basename, f'inference_{self.config["arch"]}')
-        if not os.path.exists(bckup_path):
-            os.makedirs(bckup_path)
-        
-        if not os.path.exists(infer_path):
-            os.makedirs(infer_path)
 
         print('here your configs path:')
         print(f'''
-        └── {basename}
-           ├── {self.config["arch"]}_{basename}_{self.config["subversion"]}.cfg
+        └── {parent_folder}
+           ├── {self.name_cfg}
            ├── data_desc
            │    ├── train.txt 
            |    ├── valid.txt 
            |    ├── obj.names
-           |    └── {bckup_path}/
-           └── {infer_path}/
+           |    └── backup_{self.full_model_name}/
+           └── inference_{self.full_model_name}/
         ''')
         
     def generate_arch_config(self):
@@ -127,12 +134,12 @@ class GenerateConfig:
         if self.cfg_file_lines == 'Error':
             print('[ERROR] Failed to generate configs')
             return
-        basename = self._get_basename()
-        name_cfg = f'{self.config["arch"]}_{basename}_{self.config["subversion"]}.cfg'
-        cfg_file = jpath(basename, name_cfg)
+        parent_folder = self._get_parent_folder()
+        name_cfg = f'{self.config["arch"]}_{parent_folder}_{self.config["subversion"]}.cfg'
+        cfg_file = jpath(parent_folder, name_cfg)
         self.cfg_path = cfg_file
-        if not os.path.exists(basename):
-            os.makedirs(basename)
+        if not os.path.exists(parent_folder):
+            os.makedirs(parent_folder)
         
         with open(cfg_file, 'w') as f:
             for params in self.config.keys():
@@ -152,11 +159,27 @@ class GenerateConfig:
         if mode=='train':
             print(f''' 
             " 
-            !darknet detector train \ \n{self.obj_data_path} \ \n{self.cfg_path} \n{self.downloaded_path} -dont_show -map
+            !darknet detector train \ 
+                {self.obj_data_path} \ 
+                {self.cfg_path} \ 
+                {self.downloaded_path} -dont_show -map \
+                2>&1 | tee "{self.backup_path}"/train.log | grep -E "hours left|mean_average"
             "''')
-    return self.obj_data_path, self.cfg_path, self.downloaded_path
-    def get_basename(self):
-        return self._get_basename()
+        return self.obj_data_path, self.cfg_path, self.downloaded_path
+    
+    def get_parent_folder(self):
+        return self._get_parent_folder()
+
+    def get_fullname(self):
+        '''
+            self.full_model_name = f'{self.config["arch"]}_{self.config["subversion"]}'
+            self.full_name = f'{self.full_model_name}_{parent_folder}'
+        '''
+        return self.full_name
+
+    def get_model_backup_path(self):
+        return self.backup_path
+
 
     def get_pretrained_models(self):
         yolov4 = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights'
