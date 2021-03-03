@@ -182,24 +182,27 @@ class GenerateConfig:
 
 
     def get_pretrained_models(self):
-        yolov4 = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights'
-        yolov4_csp = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-csp.weights'
-        yolov4_tiny = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.weights'
+        yolov4 = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.conv.137'
+        yolov4_csp = ' https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-csp.conv.142'
+        yolov4_tiny = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29'
+        yolov4x_mish = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4x-mish.conv.166'
+        yolov_cspx_p7 = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/cspx-p7-mish_hp.344.conv'
         
         if self.config['arch'] == 'yolov4':
             link = yolov4
-            name_pretrained = 'yolov4.weights'
-        elif self.config['arch'] == 'yolov4-tiny':
+            name_pretrained = link.split('/')[-1]
+        elif self.config['arch'] == 'yolov4-tiny' or self.config['arch'] == 'yolov4-tiny-3l' or self.config['arch'] == 'yolov4-tiny-3l-spp':
             link = yolov4_tiny
-            name_pretrained = 'yolov4-tiny.weights'
+            name_pretrained = link.split('/')[-1]
         elif self.config['arch'] == 'yolov4-csp':
             link = yolov4_csp
-            name_pretrained = 'yolov4-csp.weights'
+            name_pretrained = link.split('/')[-1]
         else:
             link = ''
             name_pretrained = ''
         
         self.downloaded_path = name_pretrained
+        print(name_pretrained)
         return link, name_pretrained
         
     def show_chart_training(self):
