@@ -157,13 +157,13 @@ class GenerateConfig:
         print('COPY THIS to new cell, and Excecute!\n\n')
         if mode=='train':
             print(f''' 
-            " 
+            **************************************************
             !darknet detector train \ 
                 {self.obj_data_path} \ 
                 {self.cfg_path} \ 
                 {self.downloaded_path} -dont_show -map \
-                2>&1 | tee "{self.backup_path}"/train.log | grep -E "hours left|mean_average"
-            "''')
+                2>&1 | tee {self.backup_path}/train.log | grep -E "hours left|mean_average"
+            **************************************************''')
         return self.obj_data_path, self.cfg_path, self.downloaded_path
     
     def get_parent_folder(self):
