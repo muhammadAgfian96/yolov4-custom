@@ -161,7 +161,7 @@ class GenerateConfig:
             !darknet detector train \ 
                 {self.obj_data_path} \ 
                 {self.cfg_path} \ 
-                {self.downloaded_path} -dont_show -map \
+                {self.downloaded_path} -dont_show -map \ 
                 2>&1 | tee {self.backup_path}/train.log | grep -E "hours left|mean_average"
             **************************************************
             ''')
