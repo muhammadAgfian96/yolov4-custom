@@ -113,7 +113,7 @@ class GenerateConfig:
         with open(valid_txt, 'w') as f:
             for img in [f for f in os.listdir(jpath(path_dataset, 'valid')) if f.endswith('jpg')]:
                 path_full_img = jpath(path_dataset, 'valid', img)
-                f.write(path_full_img)
+                f.write(path_full_img+'\n')
 
 
         print('here your configs path:')
