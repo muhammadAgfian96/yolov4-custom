@@ -124,8 +124,8 @@ class GenerateConfig:
            │    ├── train.txt 
            |    ├── valid.txt 
            |    ├── obj.names
-           |    └── backup_{self.full_model_name}/
-           └── inference_{self.full_model_name}/
+           |    └── backup_{self.full_model_name}
+           └── inference_{self.full_model_name}
         ''')
         
     def generate_arch_config(self):
@@ -163,7 +163,8 @@ class GenerateConfig:
                 {self.cfg_path} \ 
                 {self.downloaded_path} -dont_show -map \
                 2>&1 | tee {self.backup_path}/train.log | grep -E "hours left|mean_average"
-            **************************************************''')
+            **************************************************
+            ''')
         return self.obj_data_path, self.cfg_path, self.downloaded_path
     
     def get_parent_folder(self):
