@@ -100,7 +100,7 @@ class GenerateConfig:
             f.write(f'train   = {root}/train.txt\n')
             f.write(f'valid   = {root}/valid.txt\n')
             f.write(f'names   = {root}/obj.names\n')
-            f.write(f'backup  = {root}/{self.backup_path}/')
+            f.write(f'backup  = {self.backup_path}')
 
         train_txt = f'{root}/train.txt'
         valid_txt = f'{root}/valid.txt'
