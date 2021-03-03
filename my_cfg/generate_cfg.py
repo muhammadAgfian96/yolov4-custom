@@ -135,8 +135,7 @@ class GenerateConfig:
             print('[ERROR] Failed to generate configs')
             return
         parent_folder = self._get_parent_folder()
-        name_cfg = f'{self.config["arch"]}_{parent_folder}_{self.config["subversion"]}.cfg'
-        cfg_file = jpath(parent_folder, name_cfg)
+        cfg_file = jpath(parent_folder, self.name_cfg)
         self.cfg_path = cfg_file
         if not os.path.exists(parent_folder):
             os.makedirs(parent_folder)
