@@ -47,6 +47,7 @@ class GenerateConfig:
         base_name += version
         return base_name
 
+    #------------------- generate configs
     def generate_makefile(self):
         with open('Makefile', 'r+') as f:
             makefiles = f.read()
@@ -149,11 +150,7 @@ class GenerateConfig:
         
         print('[DONE] see result on', f'"{cfg_file}"')
 
-    def update_config(self, config):
-        self.config.update(config)
-
     def generate_command(self, mode):
-        self.downloaded_path = 'yolov4.conv.137'
         print('COPY THIS to new cell, and Excecute!\n\n')
         if mode=='train':
             print(f''' 
@@ -166,20 +163,28 @@ class GenerateConfig:
             **************************************************
             ''')
         return self.obj_data_path, self.cfg_path, self.downloaded_path
-    
+
+    def update_config(self, config):
+        self.config.update(config)
+
+    #------------------- get your path function
     def get_parent_folder(self):
+        '''
+            name_projects+version
+        '''
         return self._get_parent_folder()
 
     def get_fullname(self):
         '''
             self.full_model_name = f'{self.config["arch"]}_{self.config["subversion"]}'
+            
             self.full_name = f'{self.full_model_name}_{parent_folder}'
         '''
         return self.full_name
 
     def get_model_backup_path(self):
+        
         return self.backup_path
-
 
     def get_pretrained_models(self):
         yolov4 = 'https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.conv.137'
@@ -204,61 +209,13 @@ class GenerateConfig:
         self.downloaded_path = name_pretrained
         print(name_pretrained)
         return link, name_pretrained
-        
+    
+    def get_inference_path(self):
+        '''
+            self.infer_path = jpath(parent_folder, f'inference_{self.full_model_name}')
+        '''
+        return self.infer_path
+
     def show_chart_training(self):
         print('Cooming soon!')
         pass
-
-if __name__ == '__main__':
-    config = {}
-    makefile_config = { 
-        # Makefile
-        'gpu' : 0,
-        'cudnn': 0,
-        'cudnn_half':0,
-        'opencv':0,
-        'avx':0,
-        'openmp':0,
-        'libso': 0,
-        'zed_cam': 0,
-        'zed_cam2': 0,
-        'compute_compability': 75,
-    }
-
-    arch_config = {
-        # architecture yolo-configs
-        'name-project': 'badak', # no space
-        'version-config': 'auto', # or 'auto' will generate date
-        'type' : 'yolov4-tiny', # (tiny, tiny-3l, csp, normal)
-        'batch': 164,
-        'subdivisions': 8,
-        'width': 512,
-        'height': 256
-    }
-
-    config.update(makefile_config)
-    config.update(arch_config)
-
-    cfg = GenerateConfig(config)
-    # cfg.generate_makefile()
-
-    cfg.generate_path_setting('YOUR_CUSTOM_DATA')
-    cfg.generate_config()
-
-    cfg.generate_command(mode='train')
-
-    # cek nvidia-env, get compute comp
-    # conf makefile
-    # update_config()
-    # generate makefile
-    # !make
-
-    # download weights base type-yolo
-
-    # download dataset
-    # setting obj.data
-    # generate config
-
-    # train
-
-
